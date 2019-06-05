@@ -17,7 +17,6 @@ public class Lab3 {
 		// 2. Create the file in Java
 		File file = new File(filename);
 		String[] passwords = new String[13];
-		String password = null;
 		
 		try {
 			// 3. Open the file
@@ -35,73 +34,100 @@ public class Lab3 {
 			System.out.println("ERROR: Could not read file");
 		}
 		
-		// Test password again our criteria:
-			// A number (0-9)
-			// A letter (a-z, A-Z)
-			// A special character (!@#)
-		
-		for(int i=0; i<passwords.length; i++) {
-			password = passwords[i];
+		// Test password again our criteria
+		for(String password : passwords) {
+			System.out.println("*********\n" + password);
+			
+			boolean hasNumber = false;
+			boolean hasLetter = false;
+			boolean hasSpecialChar = false;
+			
+			for(int n=0; n<password.length(); n++) {
+				// Condition 1: contains number (0-9)
+				if("0123456789".contains(password.substring(n, n+1))) {
+					hasNumber = true;
+					//System.out.println("Position " + n + " contains a number");
+				}				
+				// Condition 2: contains letter (a-z, A-Z)
+				else if("abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ".contains(password.substring(n, n+1))) {
+					hasLetter = true;
+					//System.out.println("Position " + n + " contains a letter");
+				}
+				// Condition 3: contains special character (!@#)
+				else if("!@#$%^&*()_+-=".contains(password.substring(n, n+1))) {
+					hasSpecialChar = true;
+					//System.out.println("Position " + n + " contains a special character");
+				}	
+				else {
+					//System.out.println("Position " + n + " contains invalid character");
+					try {
+						throw new InvalidCharException(password.substring(n, n+1));
+					} catch (InvalidCharException e) {
+						e.toString();
+					}
+				}
+			}
+			
+			// Test & Exception Handling
+			
 			try {
-				if(password.length() != 10) {
-					throw new NumberException(password);
-				}
-				if(password.substring(0, 1).equals("0") || password.substring(0, 1).equals("9")) {
-					throw new AlphabetException(password);
-				}
-				for(int n = 0; n<password.length()-2; n++){
-					if(password.substring(n, n+1).equals("9")) {
-						if(password.substring(n+1, n+3).equals("11")) {
-							throw new SpecialCharException(password);
-						}
-					}				
-				}
-				System.out.println("Password : " + password);
-			} catch(NumberException e) {
-				System.out.println("ERROR: Number (0-9) is missing");
+				// Throw CriteriaError
+				if(!hasNumber) { throw new NumberCriteriaException(password);}
+				else if(!hasLetter) { throw new LetterCriteriaException(password);}
+				else if(!hasSpecialChar) { throw new SpecialCharCriteriaException(password);}
+				else { System.out.println("Valid Password!");}
+			} catch(NumberCriteriaException | LetterCriteriaException | SpecialCharCriteriaException e) {
+				System.out.println("Invalid password");
 				System.out.println(e.toString());
-			} catch (AlphabetException e) {
-				System.out.println("ERROR: Alphabet (a-z,A-Z) is missing");
-				System.out.println(e.toString());
-			} catch (SpecialCharException e) {
-				System.out.println("ERROR: Special character (! @ #) is missing");
-				System.out.println(e.toString());
-			} 
+			}			
+		}
 	}
 }
 
-class NumberException extends Exception {
-	String pass;
+class InvalidCharException extends Exception {
+	String ch;
 	// Constructor
-	NumberException(String pass){
-		this.pass = pass;
+	public InvalidCharException(String ch){
+		this.ch = ch;
 	}
 	
 	public String toString() {
-		return ("NumberException: " + pass);
+		return ("InvalidCharException: " + ch);
 	}
 }
 
-class AlphabetException extends Exception {
-	String pass;
+class NumberCriteriaException extends Exception {
+	String password;
 	// Constructor
-	AlphabetException (String pass){
-		this.pass = pass;
+	NumberCriteriaException (String password){
+		this.password = password;
 	}
 	
 	public String toString() {
-		return ("AlphabetException: " + pass);
+		return ("NumberCriteriaException: " + password);
 	}
 }
 
-class SpecialCharException extends Exception {
-	String pass;
+class LetterCriteriaException extends Exception {
+	String password;
 	// Constructor
-	SpecialCharException (String pass){
-		this.pass = pass;
+	LetterCriteriaException (String password){
+		this.password = password;
 	}
 	
 	public String toString() {
-		return ("SpecialCharException: " + pass);
+		return ("LetterCriteriaException: " + password);
+	}
+}
+
+class SpecialCharCriteriaException extends Exception {
+	String password;
+	// Constructor
+	SpecialCharCriteriaException  (String password){
+		this.password = password;
+	}
+	
+	public String toString() {
+		return ("SpecialCharCriteriaException : " + password);
 	}
 }
